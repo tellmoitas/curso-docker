@@ -78,4 +78,53 @@ Listar limite de uso de cpu pelo container: ````docker inspect container1 | grep
 
 Alterar limite de uso de cpu pelo container: ````docker updade --cpu-shares 512 container1````
 
-  
+### Volumes
+
+Subir container passando um volume: ````docker run -ti -v /volume ubuntu /bin/bash````
+
+confira as partições linux: ````df -h````
+
+liste as pastas e arquivos: ls
+
+Entre no volume: cd volume
+
+Crie uma pasta: mkdir teste
+
+Crie um arquivo: touch arquivo
+
+Liste os containers em execução: docker ps
+
+docker inspect -f {{.mounts}} 937ab35090e4
+
+mkdir teste
+
+cd teste
+
+touch Dockerfile
+
+docker run -ti -v primeiro_dockerfile:/volume debian
+
+no mac tem qye ser assim: 
+
+docker run -ti -v /Users/tell/teste:/volume debian
+
+conferindo no host: docker inspect -f {{.Mounts}} 417913a0675b
+
+conferindo no docker: docker attach 417913a0675b
+
+criar um data-only
+
+Vamos criar 2 containers Postgresql, com volume em eoutro container dbdados
+
+Vamos fazer um bind da porta do host com a porta do container -p host:container
+
+O -e serve para passar uma variavel de ambiente (enviroment)
+
+docker run -d -p 5432:5432 --name pgsql1 --volumes-from dbdados -e POSTGRESQL_USER=docker -e POSTGRESQL_PASS=docker -e POSTGRESQL_DB=docker kamui/postgresql
+
+docker run -d -p 5433:5432 --name pgsql2 --volumes-from dbdados -e POSTGRESQL_USER=docker -e POSTGRESQL_PASS=docker -e POSTGRESQL_DB=docker kamui/postgresql
+
+docker run -it --rm --privileged --pid=host justincormack/nsenter1
+
+cd /var/lib/docker/volumes/c6af26baeb055c376b41c688f9fae8aa20322854972b57a5613f45f
+25d88202a/_data
