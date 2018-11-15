@@ -104,7 +104,7 @@ touch Dockerfile
 
 docker run -ti -v primeiro_dockerfile:/volume debian
 
-no mac tem qye ser assim: 
+Se vc estiver usando Mac, o formato precisa ser assim: 
 
 docker run -ti -v /Users/tell/teste:/volume debian
 
@@ -124,7 +124,138 @@ docker run -d -p 5432:5432 --name pgsql1 --volumes-from dbdados -e POSTGRESQL_US
 
 docker run -d -p 5433:5432 --name pgsql2 --volumes-from dbdados -e POSTGRESQL_USER=docker -e POSTGRESQL_PASS=docker -e POSTGRESQL_DB=docker kamui/postgresql
 
-docker run -it --rm --privileged --pid=host justincormack/nsenter1
+Se você estiver usando Mac, para consegir visualizar o mapeamento, precisa disso antes: ````docker run -it --rm --privileged --pid=host justincormack/nsenter1````
 
-cd /var/lib/docker/volumes/c6af26baeb055c376b41c688f9fae8aa20322854972b57a5613f45f
-25d88202a/_data
+Para visualizar o mapeamento: ````cd /var/lib/docker/volumes/c6af26baeb055c376b41c688f9fae8aa20322854972b57a5613f45f
+25d88202a/_data````
+
+### Dockerfile
+
+````#imagem de origem
+FROM debian
+
+#nome do autor
+MAINTEINER seu-nome
+
+#Permite execuar comandos no container e instalar pacotes
+#Ter cuidado pois cada linha de RUN cria uma camada no container
+RUN apt-get update && apt-get install apache2 && apt-get clean
+
+#adiciona arquivos,  diretorios e .tar  para dentro do container
+ADD opa.txt /diretorio/
+
+#o cmd é um parametro do entrypoint que é o principal processo do container
+CMD ["sh", "-c", "echo", "$HOME"]
+
+#Adicionar metadatas: versao, fabricante
+LABEL Description = "Bla bla bla"
+
+#copia arquivos não copia .tar, diferente do ADD
+COPY opa.txt /diretorio/
+
+#Permite definir o principal processo do container, 
+#e caso esse processo morra
+#o container também será finalizado
+ENTRYPOINT ["/usr/bin/apache2ctl", "-D", "FOREGROUND"]
+
+#Configura as variaveis de ambiente
+ENV meunome="Tell"
+
+#Define as portas do container que precisam ser expostas
+EXPOSE 80
+
+#Define usuário do container o default é root
+USER nome-do-usuario-padrao
+
+#define o diretório raiz
+WORKDIR diretorio-de-trabalho-do-container
+
+#define o volume
+VOLUME /seu-diretorio ``````
+`````
+
+Dockerfile
+
+`````FROM debian
+
+RUN apt-get update && apt-get install -y apache2 && apt-get clean
+
+ENV APACHE_LOCK_DIR="var/lock"
+ENV APACHE_PID_FILE="var/run/apache2.pid"
+ENV APACHE_RUN_USER="www-data"
+ENV APACHE_RUN_GROUP="www-data"
+ENV APACHE_LOG_DIR="/var/log/apache2"
+
+LABEL Description="Webserver"
+
+VOLUME /var/www/html
+
+EXPOSE 80
+`````
+docker build -t webserver:1.0 .
+
+docker images
+
+telnet 172.17.0.2 80
+ou
+curl 172.17.0.2:80
+
+docker attach e82777cbd7dd
+
+### Docker Hub
+
+hub.docker.com
+
+docker ps
+
+docker tag 6d345bacb63 tmoitas/webserver:1.0
+
+docker images
+
+docker login
+
+docker push tmoitas/webserver:1.0
+
+
+Parametros de rede para o container
+Exibir modo bridge docker0: ifconfig
+
+
+
+Passe um servidor de DNS que vai responder as requisições: docker run -ti --dns 8.8.8.8 debian
+
+cat etc/resolv.conf
+
+exit
+
+Nome dentro do container: docker run -ti --hostname nome-container debian
+
+cat /etc/hostname
+
+exit
+
+
+Linkar 2 containers
+
+docker run -ti --name container1 debian
+
+docker run -ti --link container1 --name container2 debian
+
+ping container1
+
+cat /etc/resolv.conf
+
+cat /etc/hosts
+
+docker run -ti --link --expose 80 debian
+
+Conectar a posta do container com a porta do host: docker run -ti --publish 8080:80 debian
+
+
+
+
+
+
+
+
+
