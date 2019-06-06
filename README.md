@@ -1,4 +1,4 @@
-# curso-docker
+# intro-docker
 
 Exibir versão do Docker instalada: ````docker -- version````
 
